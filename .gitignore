@@ -1,0 +1,51 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+*.log
+
+# Vite/React
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+frontend/.vite
+
+# Backend
+backend/.env
+backend/.env.local
+backend/.env.development.local
+backend/.env.production.local
+
+# Docker
+*.pid
+*.seed
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Coverage/test
+coverage/
+*.lcov
+
+# Misc
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# CI/CD
+*.tgz
+*.lock

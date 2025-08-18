@@ -5,7 +5,8 @@ const {
   getMyApplications, 
   getJobApplications, 
   updateApplicationStatus, 
-  deleteApplication 
+  deleteApplication,
+  checkApplicationStatus 
 } = require('../controllers/applicationController');
 const { auth, adminAuth } = require('../middleware/auth');
 
@@ -22,6 +23,7 @@ const applicationValidation = [
 router.post('/', auth, applicationValidation, createApplication);
 router.get('/my-applications', auth, getMyApplications);
 router.get('/job/:jobId', auth, getJobApplications);
+router.get('/job/:jobId/status', auth, checkApplicationStatus);
 router.put('/:applicationId/status', auth, updateApplicationStatus);
 router.delete('/:applicationId', auth, deleteApplication);
 

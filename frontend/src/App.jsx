@@ -9,6 +9,7 @@ import JobDetailPage from './pages/JobDetailPage'
 import MyApplicationsPage from './pages/MyApplicationsPage'
 import AdminDashboard from './pages/AdminDashboard'
 import CreateJobPage from './pages/CreateJobPage'
+import JobApplicationsPage from './pages/JobApplicationsPage'
 
 function App() {
   const { user, loading } = useAuth()
@@ -50,8 +51,16 @@ function App() {
           element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" replace />} 
         />
         <Route 
+          path="admin/dashboard" 
+          element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/" replace />} 
+        />
+        <Route 
           path="admin/create-job" 
           element={user?.role === 'admin' ? <CreateJobPage /> : <Navigate to="/" replace />} 
+        />
+        <Route 
+          path="admin/jobs/:jobId/applications" 
+          element={user?.role === 'admin' ? <JobApplicationsPage /> : <Navigate to="/" replace />} 
         />
         
         {/* Catch all */}

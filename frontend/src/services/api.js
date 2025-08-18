@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { clearUserCache } from '../utils/cacheUtils'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -29,7 +30,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
+      // Clear user cache when unauthorized
+      clearUserCache()
       window.location.href = '/login'
     }
     return Promise.reject(error)
@@ -62,6 +64,7 @@ export const applicationService = {
   updateApplicationStatus: (applicationId, status) => 
     api.put(`/applications/${applicationId}/status`, { status }),
   deleteApplication: (applicationId) => api.delete(`/applications/${applicationId}`),
+  checkApplicationStatus: (jobId) => api.get(`/applications/job/${jobId}/status`),
 }
 
 export default api

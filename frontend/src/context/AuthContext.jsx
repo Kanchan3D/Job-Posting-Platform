@@ -1,5 +1,7 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
+import { useQueryClient } from 'react-query'
 import { authService } from '../services/api'
+import { clearUserCache } from '../utils/cacheUtils'
 
 const AuthContext = createContext()
 
@@ -12,7 +14,6 @@ const authReducer = (state, action) => {
     case 'SET_TOKEN':
       return { ...state, token: action.payload }
     case 'LOGOUT':
-      localStorage.removeItem('token')
       return { user: null, token: null, loading: false }
     default:
       return state
@@ -20,6 +21,7 @@ const authReducer = (state, action) => {
 }
 
 export const AuthProvider = ({ children }) => {
+  const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(authReducer, {
     user: null,
     token: localStorage.getItem('token'),
@@ -34,7 +36,11 @@ export const AuthProvider = ({ children }) => {
           const response = await authService.getProfile()
           dispatch({ type: 'SET_USER', payload: response.data.user })
         } catch (error) {
-          localStorage.removeItem('token')
+          console.log('🔄 Token invalid, clearing cache...')
+          // Clear React Query cache
+          queryClient.clear()
+          // Clear user cache
+          clearUserCache()
           dispatch({ type: 'LOGOUT' })
         }
       } else {
@@ -43,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     initAuth()
-  }, [])
+  }, [queryClient])
 
   const login = async (email, password) => {
     try {
@@ -82,7 +88,21 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
+    console.log('🔄 Starting logout process...')
+    
+    // Clear React Query cache
+    console.log('🗑️ Clearing React Query cache...')
+    queryClient.clear()
+    
+    // Clear user-related cache and storage
+    console.log('🗑️ Clearing user cache and storage...')
+    clearUserCache()
+    
+    // Dispatch logout action
+    console.log('📤 Dispatching logout action...')
     dispatch({ type: 'LOGOUT' })
+    
+    console.log('✅ Logout process completed!')
   }
 
   const value = {

@@ -153,6 +153,13 @@ const AdminDashboard = () => {
                         >
                           <Eye className="h-5 w-5" />
                         </Link>
+                        <Link
+                          to={`/admin/jobs/${job._id}/applications`}
+                          className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                          title="View Applications"
+                        >
+                          <Users className="h-5 w-5" />
+                        </Link>
                         <button
                           className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                           title="Edit Job"

@@ -9,9 +9,11 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const handleLogout = () => {
+    console.log('🚪 User initiated logout from Navbar')
     logout()
     navigate('/')
     setIsDropdownOpen(false)
+    console.log('🏠 Redirected to home page')
   }
 
   return (

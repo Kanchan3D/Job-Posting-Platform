@@ -190,10 +190,36 @@ const deleteApplication = async (req, res) => {
   }
 };
 
+const checkApplicationStatus = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const application = await Application.findOne({
+      job: jobId,
+      applicant: req.user._id
+    }).select('status appliedAt');
+
+    if (application) {
+      res.json({ 
+        hasApplied: true, 
+        status: application.status,
+        appliedAt: application.appliedAt
+      });
+    } else {
+      res.json({ hasApplied: false });
+    }
+
+  } catch (error) {
+    console.error('Check application status error:', error);
+    res.status(500).json({ message: 'Server error while checking application status' });
+  }
+};
+
 module.exports = {
   createApplication,
   getMyApplications,
   getJobApplications,
   updateApplicationStatus,
-  deleteApplication
+  deleteApplication,
+  checkApplicationStatus
 };

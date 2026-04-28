@@ -2,19 +2,36 @@
     "version": 2,
     "builds": [
         {
-            "src": "server.js",
+            "src": "src/server.js",
             "use": "@vercel/node",
             "config": {
                 "includeFiles": [
-                    "dist/**"
+                    "src/**",
+                    "uploads/**",
+                    ".env.production"
+                ],
+                "excludeFiles": [
+                    "tests/**",
+                    "node_modules/**"
                 ]
             }
         }
     ],
     "routes": [
         {
+            "src": "/api/(.*)",
+            "dest": "src/server.js"
+        },
+        {
+            "src": "/health",
+            "dest": "src/server.js"
+        },
+        {
             "src": "/(.*)",
-            "dest": "server.js"
+            "dest": "src/server.js"
         }
-    ]
+    ],
+    "env": {
+        "NODE_ENV": "production"
+    }
 }

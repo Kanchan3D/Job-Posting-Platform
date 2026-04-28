@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage'
 import JobsPage from './pages/JobsPage'
 import JobDetailPage from './pages/JobDetailPage'
 import MyApplicationsPage from './pages/MyApplicationsPage'
+import RecommendationsPage from './pages/RecommendationsPage'
 import AdminDashboard from './pages/AdminDashboard'
 import CreateJobPage from './pages/CreateJobPage'
 import JobApplicationsPage from './pages/JobApplicationsPage'
@@ -43,6 +44,10 @@ function App() {
         <Route 
           path="my-applications" 
           element={user ? <MyApplicationsPage /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="recommendations" 
+          element={user ? <RecommendationsPage /> : <Navigate to="/login" replace />} 
         />
         
         {/* Admin routes */}

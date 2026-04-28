@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { clearUserCache } from '../utils/cacheUtils'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8005'
 
 // Create axios instance
 const api = axios.create({
@@ -67,4 +67,21 @@ export const applicationService = {
   checkApplicationStatus: (jobId) => api.get(`/applications/job/${jobId}/status`),
 }
 
-export default api
+// Recommendation services (AI-powered job matching)
+export const recommendationService = {
+  uploadResume: (file) => {
+    const formData = new FormData()
+    formData.append('resume', file)
+    return api.post('/recommendations/upload-resume', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+  getJobRecommendations: () => api.get('/recommendations'),
+  getResumeAnalysis: () => api.get('/recommendations/resume-analysis'),
+  reanalyzeResume: () => api.post('/recommendations/analyze'),
+  deleteResume: () => api.delete('/recommendations/resume'),
+  getCandidatesForJob: (jobId) => api.get(`/recommendations/candidates/${jobId}`),
+}
+

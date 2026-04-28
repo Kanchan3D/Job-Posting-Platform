@@ -25,6 +25,17 @@ const applicationSchema = new mongoose.Schema({
     enum: ['pending', 'reviewed', 'shortlisted', 'rejected', 'hired'],
     default: 'pending'
   },
+  // AI Analysis fields
+  aiAnalysis: {
+    matchScore: Number,
+    matchReasoning: String,
+    matchedSkills: [String],
+    missingSkills: [String],
+    strengths: [String],
+    concerns: [String],
+    recommendation: String,
+    analyzedAt: Date
+  },
   appliedAt: {
     type: Date,
     default: Date.now

@@ -1,17 +1,28 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { ArrowLeft, Mail, Calendar, FileText, ExternalLink, ChevronDown } from 'lucide-react'
-import { applicationService } from '../services/api'
+import { ArrowLeft, Mail, Calendar, FileText, ExternalLink, ChevronDown, Zap } from 'lucide-react'
+import { applicationService, recommendationService } from '../services/api'
 
 const JobApplicationsPage = () => {
   const { jobId } = useParams()
   const [statusFilter, setStatusFilter] = useState('all')
+  const [sortByAI, setSortByAI] = useState(false)
   const queryClient = useQueryClient()
 
   const { data, isLoading, error } = useQuery(
     ['jobApplications', jobId],
     () => applicationService.getJobApplications(jobId)
+  )
+
+  // Fetch AI ranked candidates
+  const { data: aiData } = useQuery(
+    ['aiCandidates', jobId],
+    () => recommendationService.getCandidatesForJob(jobId),
+    { 
+      enabled: !!jobId,
+      staleTime: 5 * 60 * 1000 // 5 minutes
+    }
   )
 
   const updateStatusMutation = useMutation(
@@ -43,9 +54,30 @@ const JobApplicationsPage = () => {
 
   const { applications = [], job } = data?.data || {}
   
-  const filteredApplications = statusFilter === 'all' 
-    ? applications 
-    : applications.filter(app => app.status === statusFilter)
+  // Build map of AI candidates for quick lookup
+  const aiCandidatesMap = {}
+  if (aiData?.data?.candidates) {
+    aiData.data.candidates.forEach(candidate => {
+      aiCandidatesMap[candidate.applicationId] = candidate
+    })
+  }
+
+  // Merge applications with AI data
+  const applicationsWithAI = applications.map(app => ({
+    ...app,
+    aiAnalysis: aiCandidatesMap[app._id]?.aiAnalysis
+  }))
+  
+  let filteredApplications = statusFilter === 'all' 
+    ? applicationsWithAI 
+    : applicationsWithAI.filter(app => app.status === statusFilter)
+
+  // Sort by AI match score if enabled
+  if (sortByAI) {
+    filteredApplications = [...filteredApplications].sort((a, b) =>
+      (b.aiAnalysis?.matchScore || 0) - (a.aiAnalysis?.matchScore || 0)
+    )
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -132,6 +164,26 @@ const JobApplicationsPage = () => {
           ))}
         </div>
 
+        {/* Sort Options */}
+        {aiData?.data?.candidates && (
+          <div className="mb-6 flex items-center">
+            <button
+              onClick={() => setSortByAI(!sortByAI)}
+              className={`inline-flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                sortByAI 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              {sortByAI ? 'Sorted by AI Match' : 'Sort by AI Match'}
+            </button>
+            <span className="ml-3 text-sm text-gray-600">
+              AI analysis available for {aiData.data.candidates.length} candidates
+            </span>
+          </div>
+        )}
+
         {/* Applications List */}
         <div className="space-y-6">
           {filteredApplications.length === 0 ? (
@@ -175,6 +227,24 @@ const JobApplicationsPage = () => {
                       <Calendar className="w-4 h-4 mr-2" />
                       Applied {formatDate(application.appliedAt)}
                     </div>
+
+                    {/* AI Analysis */}
+                    {application.aiAnalysis && (
+                      <div className="mt-3 flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                          <Zap className="w-4 h-4 text-amber-500" />
+                          <span className="text-sm font-medium text-gray-700">AI Match:</span>
+                          <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold">
+                            {application.aiAnalysis?.matchScore || application.aiAnalysis?.technicalFit * 10 || 'N/A'}%
+                          </div>
+                        </div>
+                        {application.aiAnalysis?.hireable && (
+                          <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">
+                            Recommended
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="ml-6">

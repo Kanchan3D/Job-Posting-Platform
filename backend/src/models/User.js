@@ -34,6 +34,31 @@ const userSchema = new mongoose.Schema({
     location: String,
     resume: String,
     bio: String
+  },
+  // Resume file information
+  resumeFile: {
+    fileName: String,
+    filePath: String,
+    originalName: String,
+    mimeType: String,
+    size: Number,
+    uploadedAt: Date
+  },
+  // Cached resume analysis
+  resumeAnalysis: {
+    extractedSkills: [String],
+    experienceLevel: String,
+    yearsOfExperience: Number,
+    topStrengths: [String],
+    technicalExpertise: [String],
+    potentialGaps: [String],
+    summary: String,
+    analyzedAt: Date
+  },
+  // Rate limiting for analysis
+  analysisUsage: {
+    count: { type: Number, default: 0 },
+    resetDate: Date
   }
 }, {
   timestamps: true
@@ -54,6 +79,9 @@ userSchema.pre('save', async function(next) {
 
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password || !candidatePassword) {
+    throw new Error('Password is missing');
+  }
   return bcrypt.compare(candidatePassword, this.password);
 };
 
